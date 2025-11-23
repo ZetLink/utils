@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# === VARIABLES ===
+KERNEL_IMAGE="out/arch/arm64/boot/kernel"
+ZIP_NAME="DanceKernel-rhode.zip"
+ANYKERNEL_DIR=AnyKernel3
+
 # === CONFIGURACIÓN ===
 
 # Usuario de compilación
@@ -60,12 +65,44 @@ make ${ARGS} O=out vendor/bengal-perf_defconfig \
 # Compilación del kernel
 make ${ARGS} O=out -j$(nproc --all)
 
+# Instalar módulos
+make ${ARGS} O=out -j$(nproc --all) \
+    INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+
 # Verificar si se generó el Image
 if [ ! -e "out/arch/arm64/boot/Image" ]; then
     echo "❌ ERROR: Image no encontrada, falla de compilación"
     exit 1
+else
+    echo "✅ Compilación exitosa: Archivo Image generado"
+    echo "🖋️ Renombrando Image -> kernel"
+    mv out/arch/arm64/boot/Image out/arch/arm64/boot/kernel
 fi
 
-# Instalar módulos
-make ${ARGS} O=out -j$(nproc --all) \
-    INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+# Verificar si el archivo compilado existe
+if [ ! -f "$KERNEL_IMAGE" ]; then
+    echo "❌ El archivo '$KERNEL_IMAGE' no existe. Asegúrate de que la compilación se haya completado correctamente."
+    exit 1
+fi
+
+# Copiar el archivo compilado al directorio AnyKernel3
+echo "📂 Copiando '$KERNEL_IMAGE' a '$ANYKERNEL_DIR'..."
+cp "$KERNEL_IMAGE" "$ANYKERNEL_DIR/" || {
+    echo "❌ Error al copiar el archivo '$KERNEL_IMAGE'."
+    exit 1
+}
+
+# Cambiar al directorio AnyKernel3
+cd "$ANYKERNEL_DIR" || {
+    echo "❌ No se pudo cambiar al directorio '$ANYKERNEL_DIR'."
+    exit 1
+}
+
+# Crear el archivo zip
+echo "📦 Creando archivo zip '$ZIP_NAME'..."
+zip -r9 "$ZIP_NAME" * -x .git \*placeholder || {
+    echo "❌ Error al crear el archivo zip."
+    exit 1
+}
+
+echo "✅ Archivo zip creado exitosamente: '$ZIP_NAME'"

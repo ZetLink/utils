@@ -1,0 +1,4 @@
+sm6225-kernel/build_kernel/clang/
+sm6225-kernel/build_kernel/gcc32/
+sm6225-kernel/build_kernel/gcc64/
+sm6225-kernel/build_kernel/DanceKernel/
