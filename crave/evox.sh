@@ -29,7 +29,11 @@ echo "============================"
 
 # Sync the repositories
 echo -e "${GREEN}Sync rom...${NC}"
-/opt/crave/resync.sh
+if [ -f /opt/crave/resync.sh ]; then
+  /opt/crave/resync.sh
+else
+  repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+fi
 echo "==================="
 echo "Synced Successfully"
 echo "==================="
