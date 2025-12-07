@@ -6,7 +6,7 @@ Import-Module -Name Terminal-Icons
 
 # Set git aliases from commmon/aliases
 function gita { git add @args }
-function gitc { git commit -S --signoff @args }
+function gitc { git commit @args }
 function gitcp { git cherry-pick @args }
 function gitcpc { git cherry-pick --continue }
 function gitf { git fetch @args }
